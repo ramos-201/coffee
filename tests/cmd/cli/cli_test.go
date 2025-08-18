@@ -15,7 +15,7 @@ func TestRunCli_ExitsWhenNoCommandProvided(t *testing.T) {
 	rStderr, wStderr, restoreStderr := testutils.CaptureStderr()
 	defer restoreStderr()
 
-	rStout, wStout, restoreStdout := testutils.CaptureStdout()
+	rStdout, wStdout, restoreStdout := testutils.CaptureStdout()
 	defer restoreStdout()
 
 	exitCalled, restoreExit := testutils.MockExitCalled()
@@ -32,16 +32,16 @@ func TestRunCli_ExitsWhenNoCommandProvided(t *testing.T) {
 	buf.ReadFrom(rStderr)
 	outStderr := buf.String()
 
-	wStout.Close()
+	wStdout.Close()
 	var bufOut bytes.Buffer
-	bufOut.ReadFrom(rStout)
-	outStout := bufOut.String()
+	bufOut.ReadFrom(rStdout)
+	outStdout := bufOut.String()
 
 	expectedOutput := "Error: Missing command\n" +
 		"Use 'help' to see available commands\n" +
 		"Example: 'coffee <command> <args>'\n"
 
 	assert.Equal(t, expectedOutput, outStderr, "Output should match exactly")
-	assert.Equal(t, "", outStout, "stdout should be empty")
+	assert.Equal(t, "", outStdout, "stdout should be empty")
 	assert.True(t, *exitCalled, "Expected OsExit to be called")
 }
