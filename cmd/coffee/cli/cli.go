@@ -24,7 +24,18 @@ func RunCli() {
 	cmdArgs := os.Args[2:]
 	if (len(cmdArgs) != 1) || (!strings.HasSuffix(cmdArgs[0], ".cfe")) {
 		ExitError("Error: Expected only one '.cfe' file")
+		return
 	}
+
+	// RunCommand ...
+	filename := cmdArgs[0]
+	file, err := os.Open(filename)
+
+	if err != nil {
+		ExitError("Error: The file '" + filename + "' could not be opened or does not exist")
+		return
+	}
+	defer file.Close()
 }
 
 func ExitError(msg string) {
