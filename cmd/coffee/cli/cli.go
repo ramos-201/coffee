@@ -6,19 +6,22 @@ import (
 
 var OsExit = os.Exit // OsExit allows for mocking in tests
 
+var commands string = "example"
+
 func RunCli() {
 	if len(os.Args) < 2 {
-		ExitError(
-			"Error: Missing command",
-			"Use 'help' to see available commands",
-			"Example: 'coffee <command> <args>'",
-		)
+		ExitError("Error: No command provided")
+		return
+	}
+
+	cmdName := os.Args[1]
+
+	if cmdName != commands {
+		ExitError("Error: Unknown command '" + cmdName + "'")
 	}
 }
 
-func ExitError(msgs ...string) {
-	for _, msg := range msgs {
-		os.Stderr.WriteString(msg + "\n")
-	}
+func ExitError(msg string) {
+	os.Stderr.WriteString(msg + "\n")
 	OsExit(1)
 }
