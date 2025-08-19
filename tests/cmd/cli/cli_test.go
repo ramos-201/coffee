@@ -136,7 +136,7 @@ func TestRunCli_RunCmd_TerminateProcessWithInvalidArgs(t *testing.T) {
 	}
 }
 
-func TestRunCli_RunCmd_FileOpenError(t *testing.T) {
+func TestRunCli_RunCmd_TerminateProcessWithFileOpenError(t *testing.T) {
 	// Try the "run" command with nonexistent file
 	// Args: "coffee run nonexistent_file.cfe"
 	// Return: Wait for an error message and for the process to terminate
