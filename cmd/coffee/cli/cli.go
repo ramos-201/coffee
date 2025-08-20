@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bufio"
 	"os"
 	"strings"
 )
@@ -36,6 +37,15 @@ func RunCli() {
 		return
 	}
 	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		lineStr := strings.TrimSpace(line)
+		if lineStr == "" {
+			continue
+		}
+	}
 }
 
 func ExitError(msg string) {

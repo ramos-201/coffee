@@ -172,3 +172,41 @@ func TestRunCli_RunCmd_TerminateProcessWithFileOpenError(t *testing.T) {
 	assert.Equal(t, "", outStdout, "stdout should be empty")
 	assert.True(t, *exitCalled, "Expected OsExit to be called")
 }
+
+func TestRunCli_RunCmd_ContinueProcessWithEmptyFile(t *testing.T) {
+	// Try the "run" command with an empty .cfe file
+	// Args: "coffee run empty_file.cfe"
+	// Return: Continue the process without errors or text output
+	rStderr, wStderr, restoreStderr := testutils.CaptureStderr()
+	defer restoreStderr()
+
+	rStdout, wStdout, restoreStdout := testutils.CaptureStdout()
+	defer restoreStdout()
+
+	exitCalled, restoreExit := testutils.MockExitCalled()
+	defer restoreExit()
+
+	tmpFile, _ := os.CreateTemp("", "empty_file_*.cfe")
+	tmpFile.Close()
+	defer os.Remove(tmpFile.Name()) // Removes the temporary file
+
+	oldArgs := os.Args
+	os.Args = []string{"coffee", "run", tmpFile.Name()}
+	defer func() { os.Args = oldArgs }() // Reset os.Args after the test
+
+	cli.RunCli()
+
+	wStderr.Close()
+	var buf bytes.Buffer
+	buf.ReadFrom(rStderr)
+	outStderr := buf.String()
+
+	wStdout.Close()
+	var bufOut bytes.Buffer
+	bufOut.ReadFrom(rStdout)
+	outStdout := bufOut.String()
+
+	assert.Equal(t, "", outStderr, "Output should match exactly")
+	assert.Equal(t, "", outStdout, "stdout should be empty")
+	assert.False(t, *exitCalled, "OsExit should not be called")
+}
