@@ -8,11 +8,13 @@ func CaptureStderrMock() (r *os.File, w *os.File, restore func()) {
 	r, w, _ = os.Pipe()
 	os.Stderr = w
 
-	return r, w, func() {
+	restoreFunc := func() {
 		_ = w.Close()
 		_ = r.Close()
 		os.Stderr = oldStderr
 	}
+
+	return r, w, restoreFunc
 }
 
 // Temporarily redirect stdout to a pipe for print capture
@@ -21,9 +23,11 @@ func CaptureStdoutMock() (r *os.File, w *os.File, restore func()) {
 	r, w, _ = os.Pipe()
 	os.Stdout = w
 
-	return r, w, func() {
+	restoreFunc := func() {
 		_ = w.Close()
 		_ = r.Close()
 		os.Stdout = oldStdout
 	}
+
+	return r, w, restoreFunc
 }
