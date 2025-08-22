@@ -6,7 +6,7 @@ import (
 )
 
 // Mock cli.OsExit to prevent the program from terminating
-func MockExitCalled() (called *bool, restore func()) {
+func ExitCalledMock() (called *bool, restore func()) {
 	exitCalled := false
 	cli.OsExit = func(code int) { exitCalled = true }
 

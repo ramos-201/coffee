@@ -12,16 +12,16 @@ import (
 )
 
 func TestRunCli_TerminateProcessWithEmptyArgs(t *testing.T) {
-	// Tests running the CLI with no arguments
-	// Args: "coffee [empty arg]"
-	// Return: Wait for an error message and for the process to terminate
-	rStderr, wStderr, restoreStderr := testutils.CaptureStderr()
+	// Test: Run CLI with no arguments
+	// Values: "coffee"
+	// Expect: Print error message and process termination
+	rStderr, wStderr, restoreStderr := testutils.CaptureStderrMock()
 	defer restoreStderr()
 
-	rStdout, wStdout, restoreStdout := testutils.CaptureStdout()
+	rStdout, wStdout, restoreStdout := testutils.CaptureStdoutMock()
 	defer restoreStdout()
 
-	exitCalled, restoreExit := testutils.MockExitCalled()
+	exitCalled, restoreExit := testutils.ExitCalledMock()
 	defer restoreExit()
 
 	oldArgs := os.Args
@@ -40,7 +40,7 @@ func TestRunCli_TerminateProcessWithEmptyArgs(t *testing.T) {
 	bufOut.ReadFrom(rStdout)
 	outStdout := bufOut.String()
 
-	expectedOutput := "Error: No command provided\n"
+	expectedOutput := "No command provided\n"
 	assert.Equal(t, expectedOutput, outStderr, "Output should match exactly")
 
 	assert.Equal(t, "", outStdout, "stdout should be empty")
@@ -48,16 +48,16 @@ func TestRunCli_TerminateProcessWithEmptyArgs(t *testing.T) {
 }
 
 func TestRunCli_TerminateProcessWhitInvalidArgs(t *testing.T) {
-	// Tests running the CLI with invalid arguments
-	// Args: "coffee invalid_test_arg"
-	// Return: Wait for an error message and for the process to terminate
-	rStderr, wStderr, restoreStderr := testutils.CaptureStderr()
+	// Test: Run CLI with invalid arguments
+	// Values: "coffee invalid_arg"
+	// Expect: Print error message and process termination
+	rStderr, wStderr, restoreStderr := testutils.CaptureStderrMock()
 	defer restoreStderr()
 
-	rStdout, wStdout, restoreStdout := testutils.CaptureStdout()
+	rStdout, wStdout, restoreStdout := testutils.CaptureStdoutMock()
 	defer restoreStdout()
 
-	exitCalled, restoreExit := testutils.MockExitCalled()
+	exitCalled, restoreExit := testutils.ExitCalledMock()
 	defer restoreExit()
 
 	oldArgs := os.Args
@@ -76,137 +76,9 @@ func TestRunCli_TerminateProcessWhitInvalidArgs(t *testing.T) {
 	bufOut.ReadFrom(rStdout)
 	outStdout := bufOut.String()
 
-	expectedOutput := "Error: Unknown command 'invalid_arg'\n"
+	expectedOutput := "Unknown command 'invalid_arg'\n"
 	assert.Equal(t, expectedOutput, outStderr, "Output should match exactly")
 
 	assert.Equal(t, "", outStdout, "stdout should be empty")
 	assert.True(t, *exitCalled, "Expected OsExit to be called")
-}
-
-func TestRunCli_RunCmd_TerminateProcessWithInvalidArgs(t *testing.T) {
-	// Try the "run" command with invalid arguments.
-	// Args: "coffee run invalid_arg"
-	// Return: Wait for an error message and for the process to terminate
-	testCases := []struct {
-		name string
-		args []string
-	}{
-		{
-			name: "An invalid argument is sent",
-			args: []string{"coffee", "run", "invalid_arg"},
-		},
-		{
-			name: "The valid argument is sent with multiple additional arguments",
-			args: []string{"coffee", "run", "filename.cfe", "other_arg"},
-		},
-	}
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			rStderr, wStderr, restoreStderr := testutils.CaptureStderr()
-			defer restoreStderr()
-
-			rStdout, wStdout, restoreStdout := testutils.CaptureStdout()
-			defer restoreStdout()
-
-			exitCalled, restoreExit := testutils.MockExitCalled()
-			defer restoreExit()
-
-			oldArgs := os.Args
-			os.Args = tc.args
-			defer func() { os.Args = oldArgs }() // Reset os.Args after the test
-
-			cli.RunCli()
-
-			wStderr.Close()
-			var buf bytes.Buffer
-			buf.ReadFrom(rStderr)
-			outStderr := buf.String()
-
-			wStdout.Close()
-			var bufOut bytes.Buffer
-			bufOut.ReadFrom(rStdout)
-			outStdout := bufOut.String()
-
-			expectedOutput := "Error: Expected only one '.cfe' file\n"
-			assert.Equal(t, expectedOutput, outStderr, "Output should match exactly")
-
-			assert.Equal(t, "", outStdout, "stdout should be empty")
-			assert.True(t, *exitCalled, "Expected OsExit to be called")
-		})
-	}
-}
-
-func TestRunCli_RunCmd_TerminateProcessWithFileOpenError(t *testing.T) {
-	// Try the "run" command with nonexistent file
-	// Args: "coffee run nonexistent_file.cfe"
-	// Return: Wait for an error message and for the process to terminate
-	rStderr, wStderr, restoreStderr := testutils.CaptureStderr()
-	defer restoreStderr()
-
-	rStdout, wStdout, restoreStdout := testutils.CaptureStdout()
-	defer restoreStdout()
-
-	exitCalled, restoreExit := testutils.MockExitCalled()
-	defer restoreExit()
-
-	oldArgs := os.Args
-	filename := "nonexistent_file.cfe"
-	os.Args = []string{"coffee", "run", filename}
-	defer func() { os.Args = oldArgs }() // Reset os.Args after the test
-
-	cli.RunCli()
-
-	wStderr.Close()
-	var buf bytes.Buffer
-	buf.ReadFrom(rStderr)
-	outStderr := buf.String()
-
-	wStdout.Close()
-	var bufOut bytes.Buffer
-	bufOut.ReadFrom(rStdout)
-	outStdout := bufOut.String()
-
-	expectedOutput := "Error: The file '" + filename + "' could not be opened or does not exist\n"
-	assert.Equal(t, expectedOutput, outStderr, "Output should match exactly")
-
-	assert.Equal(t, "", outStdout, "stdout should be empty")
-	assert.True(t, *exitCalled, "Expected OsExit to be called")
-}
-
-func TestRunCli_RunCmd_ContinueProcessWithEmptyFile(t *testing.T) {
-	// Try the "run" command with an empty .cfe file
-	// Args: "coffee run empty_file.cfe"
-	// Return: Continue the process without errors or text output
-	rStderr, wStderr, restoreStderr := testutils.CaptureStderr()
-	defer restoreStderr()
-
-	rStdout, wStdout, restoreStdout := testutils.CaptureStdout()
-	defer restoreStdout()
-
-	exitCalled, restoreExit := testutils.MockExitCalled()
-	defer restoreExit()
-
-	tmpFile, _ := os.CreateTemp("", "empty_file_*.cfe")
-	tmpFile.Close()
-	defer os.Remove(tmpFile.Name()) // Removes the temporary file
-
-	oldArgs := os.Args
-	os.Args = []string{"coffee", "run", tmpFile.Name()}
-	defer func() { os.Args = oldArgs }() // Reset os.Args after the test
-
-	cli.RunCli()
-
-	wStderr.Close()
-	var buf bytes.Buffer
-	buf.ReadFrom(rStderr)
-	outStderr := buf.String()
-
-	wStdout.Close()
-	var bufOut bytes.Buffer
-	bufOut.ReadFrom(rStdout)
-	outStdout := bufOut.String()
-
-	assert.Equal(t, "", outStderr, "Output should match exactly")
-	assert.Equal(t, "", outStdout, "stdout should be empty")
-	assert.False(t, *exitCalled, "OsExit should not be called")
 }

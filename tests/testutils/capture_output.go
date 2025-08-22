@@ -3,7 +3,7 @@ package testutils
 import "os"
 
 // Temporarily redirect stderr to a pipe for print capture
-func CaptureStderr() (r *os.File, w *os.File, restore func()) {
+func CaptureStderrMock() (r *os.File, w *os.File, restore func()) {
 	oldStderr := os.Stderr
 	r, w, _ = os.Pipe()
 	os.Stderr = w
@@ -16,7 +16,7 @@ func CaptureStderr() (r *os.File, w *os.File, restore func()) {
 }
 
 // Temporarily redirect stdout to a pipe for print capture
-func CaptureStdout() (r *os.File, w *os.File, restore func()) {
+func CaptureStdoutMock() (r *os.File, w *os.File, restore func()) {
 	oldStdout := os.Stdout
 	r, w, _ = os.Pipe()
 	os.Stdout = w
