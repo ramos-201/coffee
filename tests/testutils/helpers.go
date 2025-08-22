@@ -2,33 +2,13 @@ package testutils
 
 import (
 	"coffee/cmd/coffee/cli"
+	"os"
 )
 
 // Mock cli.OsExit to prevent the program from terminating
-func ExitCalledMock() (called *bool, code *int, run func(f func()), restore func()) {
-	originalExit := cli.OsExit
-
+func ExitCalledMock() (called *bool, restore func()) {
 	exitCalled := false
-	exitCode := 0
+	cli.OsExit = func(code int) { exitCalled = true }
 
-	cli.OsExit = func(c int) {
-		exitCalled = true
-		exitCode = c
-		panic("exit") // Stop Cli simulating a real exit
-	}
-
-	restoreFunc := func() {
-		cli.OsExit = originalExit
-	}
-
-	runFunc := func(runF func()) {
-		defer func() {
-			if r := recover(); r != nil && r != "exit" {
-				panic(r)
-			}
-		}()
-		runF()
-	}
-
-	return &exitCalled, &exitCode, runFunc, restoreFunc
+	return &exitCalled, func() { cli.OsExit = os.Exit }
 }
