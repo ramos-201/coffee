@@ -13,7 +13,7 @@ import (
 
 func TestRunCli_TerminateProcessWithEmptyArgs(t *testing.T) {
 	// Test: Run CLI with no arguments
-	// Values: "coffee"
+	// Args: "coffee"
 	// Expect: Print error message and process termination
 	rStderr, wStderr, restoreStderr := testutils.CaptureStderrMock()
 	defer restoreStderr()
@@ -55,7 +55,7 @@ func TestRunCli_TerminateProcessWithEmptyArgs(t *testing.T) {
 
 func TestRunCli_TerminateProcessWhitInvalidArgs(t *testing.T) {
 	// Test: Run CLI with invalid arguments
-	// Values: "coffee invalid_arg"
+	// Args: "coffee invalid_arg"
 	// Expect: Print error message and process termination
 	rStderr, wStderr, restoreStderr := testutils.CaptureStderrMock()
 	defer restoreStderr()

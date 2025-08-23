@@ -1,8 +1,8 @@
 package cli
 
 import (
-	"fmt"
 	"os"
+	"strings"
 )
 
 func RunCli() {
@@ -13,11 +13,15 @@ func RunCli() {
 	cmdName := os.Args[1]
 	switch cmdName {
 	case "run":
-		return
+		executeRunCommand(os.Args[2:])
 	default:
 		ExitError("Unknown command '"+cmdName+"'", 2)
 	}
+}
 
-	fmt.Println("Continue without error / tests")
-	ErrorOutput.Write([]byte("continue without error / tests\n"))
+func executeRunCommand(cmdArgs []string) {
+	if (len(cmdArgs) != 1) || (!strings.HasSuffix(cmdArgs[0], ".cfe")) {
+		ExitError("Expected only one '.cfe' file", 2)
+		return
+	}
 }
