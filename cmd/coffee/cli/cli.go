@@ -24,4 +24,12 @@ func executeRunCommand(cmdArgs []string) {
 		ExitError("Expected only one '.cfe' file", 2)
 		return
 	}
+
+	filename := cmdArgs[0]
+
+	_, err := os.ReadFile(filename)
+	if err != nil {
+		ExitError("The file '"+filename+"' could not be opened or does not exist", 2)
+		return
+	}
 }
