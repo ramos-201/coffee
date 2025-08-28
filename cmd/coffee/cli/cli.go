@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"coffee/cmd/coffee/lexer"
-	"fmt"
 	"os"
 	"strings"
 )
@@ -29,15 +27,9 @@ func executeRunCommand(cmdArgs []string) {
 
 	filename := cmdArgs[0]
 
-	contentFile, err := os.ReadFile(filename)
+	_, err := os.ReadFile(filename)
 	if err != nil {
 		ExitError("The file '"+filename+"' could not be opened or does not exist", 2)
 		return
-	}
-
-	l := lexer.New(string(contentFile))
-
-	for tok := l.NextToken(); tok.Type != lexer.EOF; tok = l.NextToken() {
-		fmt.Printf("%+v\n", tok)
 	}
 }
