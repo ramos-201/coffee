@@ -12,7 +12,7 @@ var (
 	ErrorOutput = os.Stderr
 )
 
-func ExitError(msg string, code int) {
+func MsgExitError(msg string, code int) {
 	ErrorOutput.Write([]byte(msg + "\n"))
 	SetExitStatus(code)
 	Exit()

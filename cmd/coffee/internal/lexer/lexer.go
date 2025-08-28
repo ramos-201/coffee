@@ -1,6 +1,9 @@
 package lexer
 
-import "unicode"
+import (
+	"coffee/cmd/coffee/internal/token"
+	"unicode"
+)
 
 type Lexer struct {
 	input        string
@@ -25,19 +28,19 @@ func (l *Lexer) readChar() {
 	l.readPosition++
 }
 
-func (l *Lexer) NextToken() Token {
+func (l *Lexer) NextToken() token.Token {
 	l.skipWhitespace()
 
-	var tok Token
+	var tok token.Token
 	switch l.ch {
 	case 0:
-		tok = Token{Type: EOF, Literal: ""}
+		tok = token.Token{Type: token.EOF, Literal: ""}
 	case '(':
-		tok = Token{Type: LPARENT, Literal: string(l.ch)}
+		tok = token.Token{Type: token.LPARENT, Literal: string(l.ch)}
 	case ')':
-		tok = Token{Type: RPARENT, Literal: string(l.ch)}
+		tok = token.Token{Type: token.RPARENT, Literal: string(l.ch)}
 	case '.':
-		tok = Token{Type: DOT, Literal: string(l.ch)}
+		tok = token.Token{Type: token.DOT, Literal: string(l.ch)}
 	case '\'':
 		tok = l.readString()
 	default:
@@ -46,7 +49,7 @@ func (l *Lexer) NextToken() Token {
 			tok = lookupIdent(ident)
 			return tok
 		} else {
-			tok = Token{Type: EOF, Literal: ""}
+			tok = token.Token{Type: token.EOF, Literal: ""}
 		}
 	}
 	l.readChar()
@@ -59,7 +62,7 @@ func (l *Lexer) skipWhitespace() {
 	}
 }
 
-func (l *Lexer) readString() Token {
+func (l *Lexer) readString() token.Token {
 	l.readChar()
 	start := l.position
 
@@ -69,7 +72,7 @@ func (l *Lexer) readString() Token {
 
 	str := l.input[start:l.position]
 
-	return Token{Type: STRING, Literal: str}
+	return token.Token{Type: token.STRING, Literal: str}
 }
 
 func isLetter(ch rune) bool {
@@ -84,13 +87,13 @@ func (l *Lexer) readIdentifier() string {
 	return l.input[start:l.position]
 }
 
-func lookupIdent(ident string) Token {
+func lookupIdent(ident string) token.Token {
 	switch ident {
 	case "use":
-		return Token{Type: USE, Literal: ident}
+		return token.Token{Type: token.USE, Literal: ident}
 	case "print":
-		return Token{Type: PRINT, Literal: ident}
+		return token.Token{Type: token.PRINT, Literal: ident}
 	default:
-		return Token{Type: IDENT, Literal: ident}
+		return token.Token{Type: token.IDENT, Literal: ident}
 	}
 }

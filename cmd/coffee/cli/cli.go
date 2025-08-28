@@ -1,7 +1,8 @@
 package cli
 
 import (
-	"coffee/cmd/coffee/lexer"
+	"coffee/cmd/coffee/internal/lexer"
+	"coffee/cmd/coffee/internal/parser"
 	"fmt"
 	"os"
 	"strings"
@@ -9,7 +10,7 @@ import (
 
 func RunCli() {
 	if len(os.Args) < 2 {
-		ExitError("No command provided", 2)
+		MsgExitError("No command provided", 2)
 	}
 
 	cmdName := os.Args[1]
@@ -17,13 +18,13 @@ func RunCli() {
 	case "run":
 		executeRunCommand(os.Args[2:])
 	default:
-		ExitError("Unknown command '"+cmdName+"'", 2)
+		MsgExitError("Unknown command '"+cmdName+"'", 2)
 	}
 }
 
 func executeRunCommand(cmdArgs []string) {
-	if (len(cmdArgs) != 1) || (!strings.HasSuffix(cmdArgs[0], ".cfe")) {
-		ExitError("Expected only one '.cfe' file", 2)
+	if len(cmdArgs) != 1 || !strings.HasSuffix(cmdArgs[0], ".cfe") {
+		MsgExitError("Expected only one '.cfe' file", 2)
 		return
 	}
 
@@ -31,13 +32,25 @@ func executeRunCommand(cmdArgs []string) {
 
 	contentFile, err := os.ReadFile(filename)
 	if err != nil {
-		ExitError("The file '"+filename+"' could not be opened or does not exist", 2)
+		MsgExitError("The file '"+filename+"' could not be opened or does not exist", 2)
 		return
 	}
 
+	// Lexer
 	l := lexer.New(string(contentFile))
 
-	for tok := l.NextToken(); tok.Type != lexer.EOF; tok = l.NextToken() {
-		fmt.Printf("%+v\n", tok)
+	// Parser
+	p := parser.New(l)
+	program := p.ParseProgram()
+
+	if len(p.Errors()) > 0 {
+		fmt.Println("Parser errors:")
+		for _, msg := range p.Errors() {
+			fmt.Println(" -", msg)
+		}
+		MsgExitError("Parsing failed", 2)
 	}
+
+	fmt.Println("Program parsed successfully!")
+	fmt.Printf("AST:\n%+v\n", program)
 }
